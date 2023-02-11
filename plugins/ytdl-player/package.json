@@ -16,7 +16,8 @@
     "package.json"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "build:changelog": "npx @discordx/changelog --root=src"
   },
   "dependencies": {
     "@discordjs/opus": "^0.8.0",
