@@ -1,0 +1,2 @@
+# plugins
+discordx community plugins
