@@ -1,0 +1,39 @@
+{
+  "name": "@discordx/plugin-ytdl-player",
+  "version": "1.0.0",
+  "private": false,
+  "description": "ytdl player plugin for discordx botsF",
+  "license": "Apache-2.0",
+  "author": "Vijay Meena <indianoceanroleplay@gmail.com> [https://github.com/samarmeena]",
+  "type": "module",
+  "main": "build/index.js",
+  "files": [
+    "build",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+    "SECURITY.md",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.8.0",
+    "@discordjs/voice": "^0.14.0",
+    "@discordx/importer": "^1.1.10",
+    "@discordx/music": "^4.1.0",
+    "@discordx/pagination": "^3.4.0",
+    "ffmpeg-static": "^5.1.0",
+    "libsodium-wrappers": "^0.7.10"
+  },
+  "devDependencies": {
+    "@discordx/plugin-ytdl-player": "^1.0.0",
+    "discord.js": "^14.7.1",
+    "discordx": "^12.0.0-dev.1676099935.5ed182b9",
+    "ts-node": "^10.9.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
