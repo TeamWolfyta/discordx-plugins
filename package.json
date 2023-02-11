@@ -32,7 +32,7 @@
   ],
   "scripts": {
     "build": "turbo run build --parallel",
-    "build:changelog": "npm run build:changelog:docs && turbo run build:changelog --parallel",
+    "build:changelog": "turbo run build:changelog --parallel",
     "format": "prettier --write .",
     "format-check": "prettier --check .",
     "lint": "eslint ./",
