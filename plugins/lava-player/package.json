@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "build:changelog": "npx @discordx/changelog --root=src"
+    "build:changelog": "npx @discordx/changelog@latest --src src"
   },
   "dependencies": {
     "@discordx/importer": "^1.1.10",
