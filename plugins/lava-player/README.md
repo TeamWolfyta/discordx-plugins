@@ -48,13 +48,13 @@ yarn add @discordx/plugin-lava-player
 pnpm add @discordx/plugin-lava-player
 ```
 
-# ⚠️ Prerequisites 
+# ⚠️ Prerequisites
 
 To use this plugin, You will need to have a running Lavalink instance as well as fill the following variables in with the correct information:
 
-- `LAVA_HOST` - Either a Domain or IP pointing to the host of the Lavalink instance. Is optional, Default is `localhost`. 
-- `LAVA_PORT` - Port on the host the Lavalink instance is running on. Is optional, Default is `2333`. 
-- `LAVA_PASSWORD` - Lavalink instance password. Is optional. 
+- `LAVA_HOST` - Either a Domain or IP pointing to the host of the Lavalink instance. Is optional, Default is `localhost`.
+- `LAVA_PORT` - Port on the host the Lavalink instance is running on. Is optional, Default is `2333`.
+- `LAVA_PASSWORD` - Lavalink instance password. Is optional.
 - `LAVA_SHARD` - Number of Shards your bot is running. Is optional, Default is `0`.
 
 # 📜 Documentation
