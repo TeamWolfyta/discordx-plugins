@@ -14,10 +14,14 @@ import {
   SlashGroup,
   SlashOption,
 } from "discordx";
+import fetch from "isomorphic-unfetch";
+import spotifyUrlInfo from "spotify-url-info";
 import YouTube from "youtube-sr";
 
 import type { MyQueue } from "./music.js";
 import { MyPlayer } from "./music.js";
+
+const spotify = spotifyUrlInfo(fetch);
 
 @Discord()
 // Create music group
@@ -230,6 +234,59 @@ export class music {
     }
 
     return queue;
+  }
+
+  @Slash({ description: "Play a spotify link" })
+  async spotify(
+    @SlashOption({
+      description: "spotify url",
+      name: "url",
+      required: true,
+      type: ApplicationCommandOptionType.String,
+    })
+    spotifyURL: string,
+    interaction: CommandInteraction
+  ): Promise<void> {
+    const queue = await this.processJoin(interaction);
+    if (!queue) {
+      return;
+    }
+
+    const result = await spotify.getTracks(spotifyURL).catch(() => null);
+    if (result === null) {
+      interaction.followUp(
+        "The Spotify url you provided appears to be invalid, make sure that you have provided a valid url for Spotify"
+      );
+      return;
+    }
+
+    const videos = await Promise.all(
+      result.map((track) =>
+        YouTube.searchOne(`${track.name} by ${track.artist}`)
+      )
+    );
+
+    const tracks = videos.map(
+      (video) =>
+        new YoutubeTrack({
+          duration: video.durationFormatted,
+          thumbnail: video.thumbnail?.url,
+          title: video.title ?? "NaN",
+          url: video.url,
+          user: interaction.user,
+        })
+    );
+
+    queue.playTrack(tracks);
+
+    const embed = new EmbedBuilder();
+
+    embed.setTitle("Enqueued");
+    embed.setDescription(
+      `Enqueued  **${tracks.length}** songs from spotify playlist`
+    );
+
+    interaction.followUp({ embeds: [embed] });
   }
 
   @Slash({ description: "Play a song" })
