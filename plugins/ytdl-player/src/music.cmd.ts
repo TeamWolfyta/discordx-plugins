@@ -1,3 +1,4 @@
+import { YoutubeTrack } from "@discordx/music";
 import type { CommandInteraction, Guild } from "discord.js";
 import {
   ApplicationCommandOptionType,
@@ -13,6 +14,7 @@ import {
   SlashGroup,
   SlashOption,
 } from "discordx";
+import yts from "yt-search";
 
 import type { MyQueue } from "./music.js";
 import { MyPlayer } from "./music.js";
@@ -245,15 +247,29 @@ export class music {
     if (!queue) {
       return;
     }
-    const song = await queue.play(songName, { user: interaction.user });
-    if (!song) {
+
+    const search = await yts({ query: songName });
+    const video = search.videos[0];
+
+    if (!video) {
       interaction.followUp("The song could not be found");
-    } else {
-      const embed = new EmbedBuilder();
-      embed.setTitle("Enqueued");
-      embed.setDescription(`Enqueued song **${song.title}****`);
-      interaction.followUp({ embeds: [embed] });
+      return;
     }
+
+    const track = new YoutubeTrack({
+      duration: video.duration.timestamp,
+      thumbnail: video.thumbnail,
+      title: video.title,
+      url: video.videoId,
+      user: interaction.user,
+    });
+
+    queue.playTrack(track);
+
+    const embed = new EmbedBuilder();
+    embed.setTitle("Enqueued");
+    embed.setDescription(`Enqueued song **${video.title}****`);
+    interaction.followUp({ embeds: [embed] });
   }
 
   @Slash({ description: "Play a playlist" })
@@ -271,17 +287,39 @@ export class music {
     if (!queue) {
       return;
     }
-    const songs = await queue.playlist(playlistName, {
-      user: interaction.user,
-    });
-    if (!songs) {
+
+    const search = await yts({ query: playlistName });
+    const playlist = search.playlists[0];
+
+    if (!playlist) {
       interaction.followUp("The playlist could not be found");
-    } else {
-      const embed = new EmbedBuilder();
-      embed.setTitle("Enqueued");
-      embed.setDescription(`Enqueued  **${songs.length}** songs from playlist`);
-      interaction.followUp({ embeds: [embed] });
+      return;
     }
+
+    const list = await yts({ listId: playlist.listId });
+    const videos = await Promise.all(
+      list.videos.map((video) => yts({ videoId: video.videoId }))
+    );
+    const tracks = videos.map(
+      (video) =>
+        new YoutubeTrack({
+          duration: video.duration.timestamp,
+          thumbnail: video.thumbnail,
+          title: video.title,
+          url: video.videoId,
+          user: interaction.user,
+        })
+    );
+
+    queue.playTrack(tracks);
+
+    const embed = new EmbedBuilder();
+    embed.setThumbnail(playlist.thumbnail);
+    embed.setTitle("Enqueued");
+    embed.setDescription(
+      `Enqueued  **${tracks.length}** songs from playlist **${playlist.title}**`
+    );
+    interaction.followUp({ embeds: [embed] });
   }
 
   validateInteraction(

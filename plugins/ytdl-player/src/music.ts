@@ -153,10 +153,8 @@ export class MyQueue extends Queue {
       this.lockUpdate = false;
       return;
     }
-    const user = currentTrack.metadata.isYoutubeTrack()
-      ? currentTrack.metadata.options?.user
-      : currentTrack.metadata?.user;
 
+    const user = currentTrack.metadata.info.user;
     embed.addFields({
       name:
         "Now Playing" +
@@ -195,9 +193,9 @@ export class MyQueue extends Queue {
 
     if (
       currentTrack.metadata.isYoutubeTrack() &&
-      currentTrack.metadata.info.bestThumbnail.url
+      currentTrack.metadata.info.thumbnail
     ) {
-      embed.setThumbnail(currentTrack.metadata.info.bestThumbnail.url);
+      embed.setThumbnail(currentTrack.metadata.info.thumbnail);
     }
 
     embed.addFields({
