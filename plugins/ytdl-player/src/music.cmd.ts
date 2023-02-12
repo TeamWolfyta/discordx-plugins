@@ -14,7 +14,7 @@ import {
   SlashGroup,
   SlashOption,
 } from "discordx";
-import yts from "yt-search";
+import YouTube from "youtube-sr";
 
 import type { MyQueue } from "./music.js";
 import { MyPlayer } from "./music.js";
@@ -248,8 +248,7 @@ export class music {
       return;
     }
 
-    const search = await yts({ query: songName });
-    const video = search.videos[0];
+    const video = await YouTube.searchOne(songName).catch(() => null);
 
     if (!video) {
       interaction.followUp("The song could not be found");
@@ -257,10 +256,10 @@ export class music {
     }
 
     const track = new YoutubeTrack({
-      duration: video.duration.timestamp,
-      thumbnail: video.thumbnail,
-      title: video.title,
-      url: video.videoId,
+      duration: video.durationFormatted,
+      thumbnail: video.thumbnail?.url,
+      title: video.title ?? "NaN",
+      url: video.url,
       user: interaction.user,
     });
 
@@ -269,6 +268,9 @@ export class music {
     const embed = new EmbedBuilder();
     embed.setTitle("Enqueued");
     embed.setDescription(`Enqueued song **${video.title}****`);
+    if (video.thumbnail?.url) {
+      embed.setThumbnail(video.thumbnail?.url);
+    }
     interaction.followUp({ embeds: [embed] });
   }
 
@@ -288,25 +290,27 @@ export class music {
       return;
     }
 
-    const search = await yts({ query: playlistName });
-    const playlist = search.playlists[0];
+    const search = await YouTube.search(playlistName, {
+      limit: 1,
+      type: "playlist",
+    });
 
-    if (!playlist) {
+    const playlist = search[0];
+
+    if (!playlist?.id) {
       interaction.followUp("The playlist could not be found");
       return;
     }
 
-    const list = await yts({ listId: playlist.listId });
-    const videos = await Promise.all(
-      list.videos.map((video) => yts({ videoId: video.videoId }))
-    );
-    const tracks = videos.map(
+    const pl = await YouTube.getPlaylist(playlist.id, { fetchAll: true });
+
+    const tracks = pl.videos.map(
       (video) =>
         new YoutubeTrack({
-          duration: video.duration.timestamp,
-          thumbnail: video.thumbnail,
-          title: video.title,
-          url: video.videoId,
+          duration: video.durationFormatted,
+          thumbnail: video.thumbnail?.url,
+          title: video.title ?? "NaN",
+          url: video.url,
           user: interaction.user,
         })
     );
@@ -314,11 +318,16 @@ export class music {
     queue.playTrack(tracks);
 
     const embed = new EmbedBuilder();
-    embed.setThumbnail(playlist.thumbnail);
+
     embed.setTitle("Enqueued");
     embed.setDescription(
       `Enqueued  **${tracks.length}** songs from playlist **${playlist.title}**`
     );
+
+    if (playlist.thumbnail?.url) {
+      embed.setThumbnail(playlist.thumbnail.url);
+    }
+
     interaction.followUp({ embeds: [embed] });
   }
 
